@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Shower Presentation Engine</title>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="shower/themes/ribbon/styles/screen-16x10.css">
+        <link rel="stylesheet" href="highlight/default.css">
+        <script src="highlight/highlight.pack.js"></script>
+        <script>
+            hljs.initHighlightingOnLoad();
+        </script>
+        <style>
+            /* SLIDES */
+            .slide.black * {
+                color: #ffffff;
+            }
+            .col-l,
+            .col-r {
+                display: inline-block;
+                width: 45%;
+            }
+            .col-l {
+                margin-right: 9%;
+            }
+            /* LIVE FORMS */
+            .form {
+                margin: 20px 0;
+            }
+            .form,
+            .form fieldset {
+                padding: 20px;
+                margin-bottom: 20px;
+                border: 2px solid silver;
+            }
+            .form input {
+                padding: 0 20px;
+                outline: none;
+            }
+            .form :-moz-ui-invalid {
+                box-shadow: none;
+            }
+            .form_inputs-validation:invalid,
+            .form_inputs-validation:valid,
+            .form_inputs-validation button[type="submit"]:invalid,
+            .form_inputs-validation button[type="submit"]:valid {
+                box-shadow: none;
+            }
+            .form input,
+            .form button {
+                width: 200px;
+                height: 40px;
+                border: 2px solid silver;
+                display: inline-block;
+                font-size: 20px;
+            }
+            .form input:required {
+                background: rgba(255, 255, 0, 0.1);
+            }
+            .form input:optional {
+                background: rgba(0, 0, 255, 0.1);
+            }
+            .form input::placeholder {
+                font-style: italic;
+                color: silver;
+            }
+            .form:invalid,
+            .form :invalid {
+                box-shadow: 0px 0px 2px 2px rgba(255, 0, 0, 0.5);
+            }
+            .form:valid,
+            .form :valid {
+                box-shadow: 0px 0px 2px 2px rgba(0, 255, 0, 0.5);
+            }
+
+            .form__error-messages {
+                margin-left: 20px;
+            }
+            /* DATA TABLES */
+            .api-events td:nth-child(1) {
+                width: 40%;
+            }
+            .api-events__constraint {
+                width: 30%;
+            }
+            .api-events__js {
+                width: 20%;
+            }
+            .api-events__css {
+                width: 30%;
+            }
+            .api-events__warn {
+                color: orange;
+            }
+            .api-events__sup {
+                color: green;
+            }
+            .api-events__notsup {
+                color: red;
+            }
+        </style>
+    </head>
+    <body class="shower list">
+
+        <header class="caption">
+            <h1>Make form validation FUN AGAIN!</h1>
+            <p>Павел Ловцевич, LOVATA</p>
+        </header>
+
+        <section class="slide black" id="cover">
+            <style>
+                #cover {
+                    padding: 5%;
+                }
+                #cover h2 {
+                    position: absolute;
+                    bottom: 1%;
+                    right: 4%;
+                    font-size: 70px;
+                    text-align: right;
+                    text-shadow: 1px 1px 1px #000000;
+                }
+                #cover p {
+                    margin: 0;
+                    font-size: 40px;
+                }
+                .lovata-small {
+                    width: 200px;
+                    position: relative;
+                    top: -7%;
+                    left: -1.2%;
+                    z-index: 100;
+                }
+                .badge-rit-landscape {
+                    width: 150px;
+                    height: 72px;
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    z-index: 100;
+                }
+            </style>
+            <h2>Make form validation<br> <s>GREAT</s> FUN AGAIN!</h2>
+            <p>Павел Ловцевич</p>
+            <img class="badge-rit-landscape" src="pictures/badge-rit-landscape.png" alt="Frontend Conf 2017">
+            <img class="lovata-small" src="pictures/lovata-small.svg" alt="LOVATA">
+            <img class="cover" src="pictures/cover.jpg" alt="Make form validation FUN AGAIN!">
+        </section>
+
+        <section class="slide black">
+            <img src="pictures/avatar.jpg" class="cover" alt="Павел Ловцевич">
+            <h2>Павел Ловцевич</h2>
+            <p>
+                CTO @ <a href="http://lovata.com" target="_blank">LOVATA</a> &amp; <a href="http://2doc.by" target="_blank">2doc.by</a><br>
+                <a href="https://twitter.com/zigzag_mcquack" target="_blank">@zigzag_mcquack</a><br>
+                <a href="mailto:p.lovtsevich@lovata.com">p.lovtsevich@lovata.com</a>
+            </p>
+        </section>
+
+        <section class="slide white">
+            <img src="pictures/lovata.svg" class="cover" alt="LOVATA">
+        </section>
+
+        <section class="slide white">
+            <img src="pictures/2doc.svg" class="cover" alt="2doc.by">
+        </section>
+
+        <section class="slide">
+            <h2>Валидация</h2>
+            <figure>
+                <blockquote>
+                    <p>Подтверждение на основе представления объективных свидетельств того, что требования, предназначенные для конкретного использования или применения, выполнены.</p>
+                </blockquote>
+                <figcaption>
+                    <cite>(ISO 9000:2005)</cite>, <a href="https://www.iso.org/obp/ui#iso:std:iso:9000:ed-3:v1:ru" target="_blank">Системы менеджмента качества. Основные положения и словарь</a>
+                </figcaption>
+            </figure>
+        </section>
+
+        <section class="slide">
+            <h2>Цели валидации</h2>
+            <ul>
+                <li class="next">Получение корректных данных в корректном формате.</li>
+                <li class="next">Защита пользователя.</li>
+                <li class="next">Защита приложения.</li>
+            </ul>
+        </section>
+
+        <section class="slide white">
+            <h2 class="shout">Constraint Validation API</h2>
+        </section>
+
+        <section class="slide">
+            <h2>Constraint Validation API methods</h2>
+            <ul>
+                <li>Методы
+                    <ul>
+                        <li>checkValidity() <span class="next">&rarr; true/false &rarr; invalid event</span></li>
+                        <li>reportValidity() <span class="next">&rarr; true/false &rarr; invalid event + сообщение об ошибке</span></li>
+                        <li>setCustomValidity(message) <span class="next">&rarr; true/false &rarr; invalid event + текст для сообщения об ошибке</span></li>
+                    </ul>
+                </li>
+                <li>Свойства
+                    <ul>
+                        <li>willValidate <span class="next">&rarr; true/false на submit</span></li>
+                        <li>validity <span class="next">&rarr; ValidityState Properties</span></li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <section class="slide">
+            <img class="cover" src="pictures/api-support.png" alt="Constraint Validation API browser support">
+        </section>
+
+        <section class="slide white">
+            <h2 class="shout">required</h2>
+        </section>
+
+        <section class="slide">
+            <h2>:invalid / :valid</h2>
+            <form class="form form-validation-validity">
+                <fieldset>
+                    <input type="text" placeholder="required" required>
+                    <input  type="text" minlength="2" placeholder="minlength">
+                </fieldset>
+                <button>Отправить</button>
+            </form>
+        </section>
+
+        <section class="slide">
+            <h2>:invalid</h2>
+            <table class="api-events">
+                <thead>
+                    <tr>
+                        <td></td>
+                        <td><img src="pictures/edge.svg" width="35%" alt="Edge"></td>
+                        <td><img src="pictures/firefox.svg" width="35%" alt="Firefox"></td>
+                        <td><img src="pictures/safari.svg" width="40%" alt="Safari"></td>
+                        <td><img src="pictures/chrome.svg" width="50%" alt="Chrome"></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>&lt;input&gt;</td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                    </tr>
+                    <tr>
+                        <td>&lt;fieldset&gt;</td>
+                        <td><span class="api-events__notsup">&#10007;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                    </tr>
+                    <tr>
+                        <td>&lt;form&gt;</td>
+                        <td><span class="api-events__notsup">&#10007;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                    </tr>
+                    <tr>
+                        <td>&lt;button&gt;</td>
+                        <td><span class="api-events__notsup">&#10007;</span></td>
+                        <td><span class="api-events__notsup">&#10007;</span><sup>1</sup></td>
+                        <td><span class="api-events__notsup">&#10007;</span></td>
+                        <td><span class="api-events__notsup">&#10007;</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>
+                <em><sup>1</sup>input[type="submit"]:-moz-submit-invalid</code></em>
+            </p>
+        </section>
+
+        <section class="slide">
+            <h2>:valid</h2>
+            <table class="api-events">
+                <thead>
+                    <tr>
+                        <td></td>
+                        <td><img src="pictures/edge.svg" width="35%" alt="Edge"></td>
+                        <td><img src="pictures/firefox.svg" width="35%" alt="Firefox"></td>
+                        <td><img src="pictures/safari.svg" width="40%" alt="Safari"></td>
+                        <td><img src="pictures/chrome.svg" width="50%" alt="Chrome"></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>&lt;input&gt;</td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                    </tr>
+                    <tr>
+                        <td>&lt;fieldset&gt;</td>
+                        <td><span class="api-events__notsup">&#10007;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                    </tr>
+                    <tr>
+                        <td>&lt;form&gt;</td>
+                        <td><span class="api-events__notsup">&#10007;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                    </tr>
+                    <tr>
+                        <td>&lt;button&gt;</td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                        <td><span class="api-events__sup">&#10003;</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="slide">
+            <h2>:invalid / :valid button</h2>
+            <form class="form form-validation-validity">
+                <style>
+                    .form:invalid .form__valid-button {
+                        box-shadow: 0px 0px 2px 2px rgba(255, 0, 0, 0.5);
+                    }
+                    .form:valid .form__valid-button {
+                        box-shadow: 0px 0px 2px 2px rgba(0, 255, 0, 0.5);
+                    }
+                </style>
+                <fieldset>
+                    <input type="text" placeholder="required" required>
+                    <input  type="text" minlength="2" placeholder="minlength">
+                </fieldset>
+                <button type="submit" class="form__valid-button">Отправить</button>
+            </form>
+        </section>
+
+        <section class="slide">
+            <h2>:invalid / :valid button</h2>
+            <pre>
+                <code><mark>form:invalid</mark> button[type="submit"] {</code>
+                <code>  box-shadow: 0px 0px 2px 2px rgba(255, 0, 0, 0.5);</code>
+                <code>}</code>
+                <code><mark>form:valid</mark> button[type="submit"] {</code>
+                <code>  box-shadow: 0px 0px 2px 2px rgba(0, 255, 0, 0.5);</code>
+                <code>}</code>
+            </pre>
+        </section>
+
+        <section class="slide">
+            <h2>:invalid / :valid button</h2>
+            <pre>
+                <code>form:invalid button[type="submit"] {</code>
+                <code>  box-shadow: 0px 0px 2px 2px rgba(255, 0, 0, 0.5);</code>
+                <code>  <mark>pointer-events: none;</mark></code>
+                <code>}</code>
+                <code>form:valid button[type="submit"] {</code>
+                <code>  box-shadow: 0px 0px 2px 2px rgba(0, 255, 0, 0.5);</code>
+                <code>  <mark>pointer-events: auto;</mark></code>
+                <code>}</code>
+            </pre>
+        </section>
+
+        <section class="slide white">
+            <img class="cover" src="pictures/telegram-screenshot.jpg" alt="Telegram screenshot">
+        </section>
+
+        <section class="slide white">
+            <h2 class="shout">minlength <br> maxlength</h2>
+        </section>
+
+        <section class="slide">
+            <h2>События minlength / maxlength</h2>
+            <table class="api-events">
+                <thead>
+                    <tr>
+                        <th>Ограничение</th>
+                        <th>JS</th>
+                        <th>CSS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>minlength</td>
+                        <td>.tooShort</td>
+                        <td>:invalid</td>
+                    </tr>
+                    <tr>
+                        <td>maxlength</td>
+                        <td>.tooLong</td>
+                        <td>:invalid <span class="next">/ <s>:out-of-range</s></span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="slide">
+            <h2>minlength / maxlength</h2>
+            <pre>
+                <code>&lt;input type="text" <mark>minlength="2" maxlength="4"</mark>&gt;</code>
+            </pre>
+        </section>
+
+        <section class="slide">
+            <h2>minlength / maxlength</h2>
+                <form class="form">
+                    <fieldset>
+                        <input type="text" minlength="2" maxlength="4" placeholder="required" required>
+                        <input type="text" minlength="2" maxlength="4" placeholder="optional">
+                    </fieldset>
+                <button>Отправить</button>
+            </form>
+        </section>
+
+        <section class="slide">
+            <img class="cover" src="pictures/minlength-support.png" alt="minlength browser support">
+        </section>
+
+        <section class="slide">
+            <img class="cover" src="pictures/maxlength-support.png" alt="maxlength browser support">
+        </section>
+
+        <section class="slide">
+            <h2>minlength / maxlength + value</h2>
+            <form class="form">
+                <fieldset>
+                    <input type="text" maxlength="4" value="123456" placeholder="required">
+                    <input type="text" minlength="4" value="12" placeholder="required">
+                </fieldset>
+                <button>Отправить</button>
+            </form>
+        </section>
+
+        <section class="slide white">
+            <img class="place" width="115%" src="pictures/the-donald.gif" alt="Donald Trump is laughing">
+        </section>
+
+        <section class="slide white">
+            <h2 class="shout">pattern</h2>
+        </section>
+
+        <section class="slide">
+            <img class="cover" src="pictures/pattern-support.png" alt="pattern browser support">
+        </section>
+
+        <section class="slide">
+            <h2>pattern</h2>
+            <ul>
+                <li>[a-z]</li>
+                <li>\w</li>
+                <li>\d</li>
+                <li>(a|b)</li>
+                <li>{2,4}</li>
+            </ul>
+        </section>
+
+        <section class="slide">
+            <h2>pattern</h2>
+            <ul>
+                <li>[a-z]</li>
+                <li>\w</li>
+                <li>\d</li>
+                <li>(a|b)</li>
+                <li><mark>{2,4}</mark></li>
+            </ul>
+        </section>
+
+        <section class="slide">
+            <h2>minlength + Edge support</h2>
+            <pre>
+                <code>&lt;input type="text"</code>
+                <code>       minlength="2"</code>
+                <code>       maxlength="4"</code>
+                <code>       <mark>pattern="^\w{2,}$"</mark>&gt;</code>
+            </pre>
+        </section>
+
+        <section class="slide">
+            <h2>minlength + Edge support</h2>
+            <div class="col-l">
+                <pre>
+                    <code>&lt;input type="text"</code>
+                    <code>       minlength="2"</code>
+                    <code>       maxlength="4"</code>
+                    <code>       pattern="<mark>^</mark>\w{2,}<mark>$</mark>"&gt;</code>
+                </pre>
+            </div>
+            <div class="col-r next">
+                <pre>
+                    <code>&lt;input type="text"</code>
+                    <code>       minlength="2"</code>
+                    <code>       maxlength="4"</code>
+                    <code>       pattern="<mark>\w{2,}</mark>"&gt;</code>
+                </pre>
+            </div>
+        </section>
+
+        <section class="slide white">
+            <h2 class="shout">title</h2>
+        </section>
+
+        <section class="slide">
+            <h2>Pattern message</h2>
+            <pre>
+                <code>&lt;input type="text" pattern="220[0-9]{3,}"</code>
+                <code>       title="Формат &amp;quot;220XXX&amp;quot;,</code>
+                <code>       где &amp;quot;XXX&amp;quot; числа 0-9."&gt;</code>
+                <code></code>
+            </pre>
+        </section>
+
+        <section class="slide">
+            <h2>Pattern message</h2>
+            <pre>
+                <code>&lt;input type="text" pattern="<mark>220</mark>[0-9]{3,}"</code>
+                <code>       title="Формат &amp;quot;220XXX&amp;quot;,</code>
+                <code>       где &amp;quot;XXX&amp;quot; числа 0-9."&gt;</code>
+                <code></code>
+            </pre>
+        </section>
+
+        <section class="slide white">
+            <h2>Pattern message</h2>
+            <pre>
+                <code>&lt;input type="text" pattern="220<mark>[0-9]{3,}</mark>"</code>
+                <code>       title="Формат &amp;quot;220XXX&amp;quot;,</code>
+                <code>       где &amp;quot;XXX&amp;quot; числа 0-9."&gt;</code>
+                <code></code>
+            </pre>
+        </section>
+
+        <section class="slide white">
+            <h2>Pattern message</h2>
+            <pre>
+                <code>&lt;input type="text" pattern="220[0-9]{3,}"</code>
+                <code>       <mark>title="Формат &amp;quot;220XXX&amp;quot;,</mark></code>
+                <code>       <mark>где &amp;quot;XXX&amp;quot; числа 0-9."&gt;</mark></code>
+                <code></code>
+            </pre>
+        </section>
+
+        <section class="slide">
+            <h2>Pattern message</h2>
+                <form class="form">
+                    <fieldset>
+                        <input type="text" maxlength="6" pattern="^220[0-9]{3,}$" placeholder="220000" required>
+                    </fieldset>
+                <button>Отправить</button>
+            </form>
+        </section>
+
+        <section class="slide">
+            <h2>Pattern message</h2>
+                <form class="form">
+                    <fieldset>
+                        <input type="text" maxlength="6" pattern="^220[0-9]{3,}$" title="Формат &quot;220XXX&quot;, где &quot;XXX&quot; числа 0-9." placeholder="220000" required>
+                    </fieldset>
+                <button>Отправить</button>
+            </form>
+        </section>
+
+        <section class="slide">
+            <img class="cover" src="pictures/internationalization-support.png" alt="Internationalization API browser support">
+        </section>
+
+        <section class="slide white">
+            <h2 class="shout">Дальше больше</h2>
+        </section>
+
+        <section class="slide">
+            <img class="cover" src="pictures/email-tel-url-support.png" alt="email, tel, url browser support">
+        </section>
+
+        <section class="slide">
+            <h2>Email, url</h2>
+            <table class="api-events">
+                <thead>
+                    <tr>
+                        <th class="api-events__constraint">Ограничение</th>
+                        <th class="api-events__js">JS</th>
+                        <th class="api-events__css">CSS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>required</td>
+                        <td>.valueMissing</td>
+                        <td>:invalid</td>
+                    </tr>
+                    <tr>
+                        <td>maxlength</td>
+                        <td>.tooLong</td>
+                        <td>:invalid</td>
+                    </tr>
+                    <tr>
+                        <td>minlength</td>
+                        <td>.tooShort</td>
+                        <td>:invalid</td>
+                    </tr>
+                    <tr>
+                        <td>pattern</td>
+                        <td>.patternMismatch</td>
+                        <td>:invalid</td>
+                    </tr>
+                    <tr class="next">
+                        <td>type</td>
+                        <td>.typeMismatch</td>
+                        <td>:invalid</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="slide">
+            <h2>Выделение ошибки :required</h2>
+            <form class="form form_inputs-validation form_email" method="post" action="https://echo.htmlacademy.ru" target="_blank">
+                <style>
+                    .form_email input:invalid + .form__error-messages {
+                        color: red;
+                    }
+                    /* REQUIRED */
+                    .form_email input:not(:placeholder-shown) + .form__error-messages .form__error-required {
+                        color: green;
+                    }
+                    /* TYPE */
+                    .form_email input:valid + .form__error-messages .form__error-type {
+                        color: green;
+                    }
+                </style>
+                <input type="email" name="email" placeholder="john@doe.com" required>
+                <ul class="form__error-messages">
+                    <li class="form__error-required">required</li>
+                    <li class="form__error-type">type</li>
+                </ul>
+                <button type="submit">Отправить</button>
+            </form>
+        </section>
+
+        <section class="slide">
+            <img class="cover" src="pictures/placeholder-shown-support.png" alt="placeholder-shown browser support">
+        </section>
+
+        <section class="slide">
+            <h2>Выделение ошибки :required</h2>
+            <pre>
+                <code>input<mark>:not(</mark>:placeholder-shown<mark>)</mark> + ul .error-required {</code>
+                <code>    color: green; /* required - ok */</code>
+                <code>}</code>
+            </pre>
+            <pre class="next">
+                <code>input<mark>:valid</mark> + ul .error-type {</code>
+                <code>    color: green; /* type - ok */</code>
+                <code>}</code>
+            </pre>
+        </section>
+
+        <section class="slide white">
+            <h2 class="shout">:user-error</h2>
+        </section>
+
+        <section class="slide">
+            <img class="cover" src="pictures/number-support.png" alt="number browser support">
+        </section>
+
+        <section class="slide">
+            <h2>Number</h2>
+            <table class="api-events">
+                <thead>
+                    <tr>
+                        <th class="api-events__constraint">Ограничение</th>
+                        <th class="api-events__js">JS</th>
+                        <th class="api-events__css">CSS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>required</td>
+                        <td>.valueMissing</td>
+                        <td>:invalid</td>
+                    </tr>
+                    <tr class="next">
+                        <td>type</td>
+                        <td>.badInput</td>
+                        <td>:invalid</td>
+                    </tr>
+                    <tr class="next">
+                        <td>min</td>
+                        <td>.rangeUnderflow</td>
+                        <td>:invalid / :out-of-range</td>
+                    </tr>
+                    <tr class="next">
+                        <td>max</td>
+                        <td>.rangeOverflow</td>
+                        <td>:invalid / :out-of-range</td>
+                    </tr>
+                    <tr class="next">
+                        <td>step</td>
+                        <td>.stepMismatch</td>
+                        <td>:invalid</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="slide">
+            <img class="cover" src="pictures/range-support.png" alt="in-range, out-of-range browser support">
+        </section>
+
+        <section class="slide">
+            <h2>Выделение ошибки :out-of-range</h2>
+            <form class="form form_inputs-validation form_number" method="post" action="https://echo.htmlacademy.ru" target="_blank">
+                <style>
+                    .form_number input:invalid + .form__error-messages {
+                        color: red;
+                    }
+                    /* REQUIRED */
+                    .form_number input:not(:placeholder-shown) + .form__error-messages .form__error-required {
+                        color: green;
+                    }
+                    /* RANGE */
+                    .form_number input:in-range:not(:placeholder-shown) + .form__error-messages .form__error-range {
+                        color: green;
+                    }
+                    /* STEP */
+                    .form_number input:valid + .form__error-messages .form__error-step {
+                        color: green;
+                    }
+                </style>
+                <input type="number" min="2" max="4" step="2" name="number" placeholder="number" required>
+                <ul class="form__error-messages">
+                    <li class="form__error-required">required</li>
+                    <li class="form__error-range">range</li>
+                    <li class="form__error-step">step</li>
+                </ul>
+                <button>Отправить</button>
+            </form>
+        </section>
+
+        <section class="slide">
+            <h2>Выделение ошибки :out-of-range</h2>
+            <pre>
+                <code>input<mark>:in-range</mark>:not(:placeholder-shown) + ul .error-range {</code>
+                <code>  color: green;</code>
+                <code>}</code>
+            </pre>
+        </section>
+
+        <section class="slide">
+            <h2>Выделение ошибки :out-of-range</h2>
+            <pre>
+                <code>input:in-range<mark>:not(:placeholder-shown)</mark> + ul .error-range {</code>
+                <code>  color: green;</code>
+                <code>}</code>
+            </pre>
+        </section>
+
+        <section class="slide">
+            <h2>Выделение ошибки :out-of-range</h2>
+            <pre>
+                <code>input<mark>:valid</mark> + ul .error-step {</code>
+                <code>  color: green;</code>
+                <code>}</code>
+            </pre>
+        </section>
+
+        <section class="slide black jit">
+            <style>
+                .slide.jit h2 {
+                    width: auto;
+                    position: absolute;
+                    right: -650px;
+                    top: 200px;
+                    display: inline-block;
+                }
+            </style>
+            <h2 class="shout">JIT</h2>
+            <img class="cover" src="pictures/donald-trump.jpg" alt="Donald Trump points out">
+        </section>
+
+        <section class="slide">
+            <h2>Своевременность валидации</h2>
+            <pre>
+                <code>input:invalid:not(:focus)<mark>:not(:placeholder-shown)</mark> {</code>
+                <code>    color: red;</code>
+                <code>}</code>
+            </pre>
+        </section>
+
+        <section class="slide">
+            <h2>Своевременность валидации</h2>
+            <pre>
+                <code>input:invalid<mark>:not(:focus)</mark>:not(:placeholder-shown) {</code>
+                <code>    color: red;</code>
+                <code>}</code>
+            </pre>
+        </section>
+
+        <section class="slide">
+            <h2>Своевременность валидации</h2>
+            <pre>
+                <code>input<mark>:invalid</mark>:not(:focus):not(:placeholder-shown) {</code>
+                <code>    color: red;</code>
+                <code>}</code>
+            </pre>
+        </section>
+
+        <section class="slide">
+            <h2>Своевременность валидации</h2>
+            <form class="form form_jit form-validation-placeholder-shown-errors" method="post" action="https://echo.htmlacademy.ru" target="_blank">
+                <style>
+                    .form_jit:invalid,
+                    .form_jit :invalid {
+                        box-shadow: none;
+                    }
+                    .form_jit:valid,
+                    .form_jit :valid {
+                        box-shadow: none;
+                    }
+                    .form_jit button {
+                        margin-top: 20px;
+                        display: block;
+                    }
+                    .form_jit .form__error-messages {
+                        display: none;
+                    }
+                    .form_jit input:invalid:not(:focus):not(:placeholder-shown) {
+                        box-shadow: 0px 0px 2px 2px rgba(255, 0, 0, 0.5);
+                    }
+
+                    .form_jit input:valid:not(:focus):not(:placeholder-shown) {
+                        box-shadow: 0px 0px 2px 2px rgba(0, 255, 0, 0.5);
+                    }
+                </style>
+                <input type="email" name="email" placeholder="john@doe.com" required>
+                <button>Отправить</button>
+            </form>
+        </section>
+
+        <section class="slide">
+            <h2>Своевременность валидации</h2>
+            <pre>
+                <code>field.onblur = function () {</code>
+                <code>    this.reportValidity()</code>
+                <code>}</code>
+            </pre>
+        </section>
+
+        <section class="slide">
+            <h2>Своевременность валидации</h2>
+            <form class="form form_jit form-validation-placeholder-shown-errors" method="post" action="https://echo.htmlacademy.ru" target="_blank">
+                <script>
+                window.onload = function () {
+                    var reportBug = document.getElementById("report-bug");
+                    reportBug.addEventListener('blur',function (e) {
+                        e.target.reportValidity();
+                    },true);
+                }
+                </script>
+                <input id="report-bug" type="email" name="email" placeholder="john@doe.com" required>
+                <button>Отправить</button>
+            </form>
+        </section>
+
+        <section class="slide white">
+            <h2 class="shout"><s>reportValidity()</s></h2>
+        </section>
+
+        <section class="slide white">
+            <h2 class="shout">setCustomValidity()</h2>
+        </section>
+
+        <section class="slide">
+            <h2>Кастомное сообщение</h2>
+            <pre>
+                <code>var field = [checking field];</code>
+                <code>field.addEventListener('blur', function () {</code>
+                <code>    if (field.validity.typeMismatch) {</code>
+                <code>        field.setCustomValidity("Error message.");</code>
+                <code>    } else {</code>
+                <code>        field.setCustomValidity("");</code>
+                <code>    }</code>
+                <code>});</code>
+            </pre>
+        </section>
+
+        <section class="slide">
+            <h2>Кастомное сообщение</h2>
+            <pre>
+                <code>var field = [checking field];</code>
+                <code>field.addEventListener('blur', function () {</code>
+                <code>    if (field.validity.<mark>patternMismatch</mark>) {</code>
+                <code>        field.<mark>setCustomValidity</mark>("Error message.");</code>
+                <code>    } else {</code>
+                <code>        field.setCustomValidity("");</code>
+                <code>    }</code>
+                <code>});</code>
+            </pre>
+        </section>
+
+        <section class="slide">
+            <h2>Кастомное сообщение</h2>
+            <pre>
+                <code>var field = [checking field];</code>
+                <code>field.addEventListener('blur', function () {</code>
+                <code>    if (field.validity.patternMismatch) {</code>
+                <code>        field.setCustomValidity("Error message.");</code>
+                <code>    } else {</code>
+                <code>        field.<mark>setCustomValidity("")</mark>;</code>
+                <code>    }</code>
+                <code>});</code>
+            </pre>
+        </section>
+
+        <section class="slide white">
+            <img class="cover" src="pictures/trump-pilot.jpg" alt="Donald Trump pilot">
+        </section>
+
+        <section class="slide white">
+            <h2 class="shout">novalidate</h2>
+        </section>
+
+        <section class="slide white">
+            <h2>novalidate</span></h2>
+            <ul>
+                <li>Отключает системные сообщения.</li>
+                <li>Сохраняет состояния валидности (JS, CSS).</li>
+                <li>Позволяет отправить форму.</li>
+            </ul>
+        </section>
+
+        <section class="slide">
+            <h2>Точка управления</h2>
+            <pre>
+                <code>var field = [checking field];</code>
+                <code>field.addEventListener('blur', function () {</code>
+                <code>    if (<mark>field.validity.patternMismatch</mark>) {</code>
+                <code>        field.setCustomValidity("Error message.");</code>
+                <code>    } else {</code>
+                <code>        field.setCustomValidity("");</code>
+                <code>    }</code>
+                <code>});</code>
+            </pre>
+        </section>
+
+        <section class="slide">
+            <h2>Точка управления</h2>
+            <pre>
+                <code>var field = [checking field];</code>
+                <code>field.addEventListener('blur', function () {</code>
+                <code>    if (<mark>pass1!=pass2</mark>) {</code>
+                <code>        field.setCustomValidity("Error message.");</code>
+                <code>    } else {</code>
+                <code>        field.setCustomValidity("");</code>
+                <code>    }</code>
+                <code>});</code>
+            </pre>
+        </section>
+
+        <section class="slide">
+            <h2>Собираем информацию о поле</h2>
+            <pre>
+                <code>// выбираем поле</code>
+                <code>var email = document.getElementById('email');</code>
+                <code>// читаем свойства</code>
+                <code>var validations = ['typeMismatch', 'tooShort'];</code>
+            </pre>
+        </section>
+
+        <section class="slide">
+            <h2>Собираем информацию о поле</h2>
+            <pre>
+                <code>function showError(typeError) {</code>
+                <code>    console.log('Error type  - ' + typeError);</code>
+                <code>}</code>
+            </pre>
+        </section>
+
+        <section class="slide">
+            <h2>Собираем информацию о поле</h2>
+            <pre>
+                <code>email.addEventListener('blur', function(){</code>
+                <code>  for (var i = 0; i < validations.length; i++){</code>
+                <code>    if (email.validity[validations[i]]) {</code>
+                <code>       showError(validations[i]);</code>
+                <code>    }</code>
+                <code>  }</code>
+                <code>});</code>
+            </pre>
+        </section>
+
+        <section class="slide">
+            <h2>Собираем информацию о поле</h2>
+            <form class="form" method="post" action="https://echo.htmlacademy.ru" target="_blank">
+                <label class="form__label" for="email2">Email *</label>
+                <input class="form__input" id="email2" name="email2" type="email" placeholder=" " minlength="6" required>
+                </form>
+                <script>
+                var email = document.getElementById('email2');
+                var validations = ['typeMismatch', 'tooShort'];
+
+                function showError(typeError) {
+                    console.log('Тип ошибки  - ' + typeError);
+                }
+
+                email.addEventListener('blur', function() {
+                    for (var i = 0; i < validations.length; i++) {
+                        if (email.validity[validations[i]]) {
+                            showError(validations[i]);
+                        }
+                    }
+                });
+                </script>
+        </section>
+
+        <section class="slide">
+            <h2>Глушим системные сообщения</h2>
+            <pre>
+                <code>document.forms[0].addEventListener('invalid',function (e) {</code>
+                <code>    e.preventDefault();</code>
+                <code>},true);</code>
+            </pre>
+        </section>
+
+        <section class="slide">
+            <h2>Native form validation, Peter-Paul Koch</span></h2>
+            <img width="25%" src="pictures/ppk.jpeg" alt="" style="float: left; margin-right: 40px;">
+            <ul>
+                <li><a href="https://medium.com/samsung-internet-dev/native-form-validation-part-1-bf8e35099f1d" target="_blank">Part 1</a></li>
+                <li><a href="https://medium.com/samsung-internet-dev/native-form-validation-part-2-552c78f563b" target="_blank">Part 2</a></li>
+                <li><a href="https://medium.com/samsung-internet-dev/native-form-validation-part-3-8e643e1dd06" target="_blank">Part 3</a></li>
+            </ul>
+        </section>
+
+        <section class="slide">
+            <h2>Выводы</span></h2>
+            <ul>
+                <li class="next">Прогрессивное улучшение.</li>
+                <li class="next">Непривычный способ решения задачи.</li>
+                <li class="next">Правильный способ решения задачи.</li>
+                <li class="next">Проблемы багов, архитектуры и кроссбраузерности решаемы.</li>
+                <li class="next">Место для OpenSource!</li>
+                </ul>
+        </section>
+
+        <section class="slide white">
+            <h2 class="shout next">Валидация на сервере!</h2>
+        </section>
+
+        <section class="slide black" id="fin">
+            <h2>Спасибо за внимание!<br><br> Вопросы?</h2>
+            <img src="pictures/wow-donald-trump.jpg" alt="" class="cover">
+            <style>
+                #fin {
+                    padding-top: 50px;
+                }
+
+                #fin h2 {
+                    width: 45%;
+                    margin: 0;
+                    font-size: 70px;
+                }
+            </style>
+        </section>
+
+        <p class="badge">
+            <a href="https://github.com/lautsevich/constraint-validation-talk-rit2017">Fork me on GitHub</a>
+        </p>
+        <!--
+        To hide progress bar from entire presentation
+        just remove “progress” element.
+        -->
+        <div class="progress"></div>
+        <script src="shower/shower.min.js"></script>
+
+    </body>
+</html>
